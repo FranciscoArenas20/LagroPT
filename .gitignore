@@ -1,0 +1,13 @@
+# NestJS
+**/node_modules
+**/dist
+
+# Flutter
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+
+# General
+.DS_Store
+.env
