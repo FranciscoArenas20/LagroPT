@@ -1,0 +1,18 @@
+
+services:
+  # El contenedor de la base de datos
+  db:
+    image: postgres:15
+    container_name: nest_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: product_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
