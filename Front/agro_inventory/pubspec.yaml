@@ -36,6 +36,8 @@ dependencies:
   dio: ^5.4.3
   # Navegación
   go_router: ^14.0.0
+  #cache_imagen
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:
