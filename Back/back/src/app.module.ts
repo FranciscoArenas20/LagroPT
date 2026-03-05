@@ -15,7 +15,7 @@ import { Category } from './products/entities/category.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT || '15739),
+      port: parseInt(process.env.DB_PORT || '15739'),
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
