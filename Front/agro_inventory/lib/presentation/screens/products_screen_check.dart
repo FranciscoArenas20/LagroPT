@@ -67,18 +67,60 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
           ),
         ),
       ),
-      body: (productsState.isLoading && filteredProducts.isEmpty)
-          ? const Center(child: CircularProgressIndicator())
-          : filteredProducts.isEmpty
-          ? const Center(child: Text('No se encontraron productos'))
-          : ListView.builder(
-              controller: scrollController,
-              itemCount: filteredProducts.length,
-              itemBuilder: (context, index) {
-                final product = filteredProducts[index];
-                return ProductCard(product: product);
-              },
+      body: Column(
+        children: [
+          // BANNER DE ERROR / REINTENTO
+          if (productsState.hasError)
+            Container(
+              width: double.infinity,
+              color: Colors.orange.shade100,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Expanded(
+                    child: Text(
+                      'Sin conexión. Mostrando datos locales.',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () =>
+                        ref.read(productsProvider.notifier).retry(),
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text('REINTENTAR'),
+                  ),
+                ],
+              ),
             ),
+
+          // LISTADO DE PRODUCTOS
+          Expanded(
+            child: (productsState.isLoading && filteredProducts.isEmpty)
+                ? const Center(child: CircularProgressIndicator())
+                : filteredProducts.isEmpty
+                ? const Center(child: Text('No se encontraron productos'))
+                : ListView.builder(
+                    controller: scrollController,
+                    itemCount: filteredProducts.length,
+                    itemBuilder: (context, index) {
+                      final product = filteredProducts[index];
+                      return ProductCard(product: product);
+                    },
+                  ),
+          ),
+
+          // INDICADOR DE CARGA AL FINAL (SCROLL INFINITO)
+          if (productsState.isLoading && filteredProducts.isNotEmpty)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      ),
     );
   }
 }

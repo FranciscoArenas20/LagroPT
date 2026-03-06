@@ -19,13 +19,14 @@ final productsRepositoryProvider = Provider((ref) {
   return ProductsRepositoryImpl(datasource);
 });
 
-// Estado del Provider
+// Estado del Provider Mejorado
 class ProductsState {
   final List<Product> products;
   final int offset;
   final bool isLoading;
   final bool isLastPage;
   final String searchQuery;
+  final bool hasError; // <--- Nueva propiedad para el botón de reload
 
   ProductsState({
     this.products = const [],
@@ -33,6 +34,7 @@ class ProductsState {
     this.isLoading = false,
     this.isLastPage = false,
     this.searchQuery = '',
+    this.hasError = false,
   });
 
   ProductsState copyWith({
@@ -41,16 +43,17 @@ class ProductsState {
     bool? isLoading,
     bool? isLastPage,
     String? searchQuery,
+    bool? hasError,
   }) => ProductsState(
     products: products ?? this.products,
     offset: offset ?? this.offset,
     isLoading: isLoading ?? this.isLoading,
     isLastPage: isLastPage ?? this.isLastPage,
     searchQuery: searchQuery ?? this.searchQuery,
+    hasError: hasError ?? this.hasError,
   );
 }
 
-// Notificador con Búsqueda en Base de Datos Local
 class ProductsNotifier extends StateNotifier<ProductsState> {
   final ProductsRepository repository;
   final ObjectBoxDatasource objectBox;
@@ -60,9 +63,14 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
     loadNextPage();
   }
 
-  // Busca en los registros de ObjectBox
+  // Función para resetear el error y reintentar
+  Future<void> retry() async {
+    state = state.copyWith(hasError: false, isLoading: true);
+    await loadNextPage();
+  }
+
   void searchProducts(String query) async {
-    state = state.copyWith(searchQuery: query);
+    state = state.copyWith(searchQuery: query, hasError: false);
 
     if (query.isEmpty) {
       final cache = await objectBox.getCachedProducts();
@@ -70,9 +78,7 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
       return;
     }
 
-    // consulta en ObjectBox
     final results = await objectBox.searchProducts(query);
-
     state = state.copyWith(
       products: results,
       isLoading: false,
@@ -81,10 +87,11 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
   }
 
   Future<void> loadNextPage() async {
+    // Si ya está cargando, es la última página o hay búsqueda activa, no hace nada
     if (state.isLoading || state.isLastPage || state.searchQuery.isNotEmpty)
       return;
 
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, hasError: false);
 
     try {
       final newProducts = await repository.getProducts(
@@ -97,7 +104,6 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         return;
       }
 
-      // Guardamos en la base de datos local para que el buscador los encuentre
       await objectBox.saveProducts(newProducts);
 
       state = state.copyWith(
@@ -106,18 +112,20 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         offset: state.offset + 30,
       );
     } catch (e) {
-      // Si no hay internet, mostramos lo que ya tenemos guardado
+      // Manejo de error avanzado
+      state = state.copyWith(isLoading: false, hasError: true);
+
+      // Si la lista está vacía (primer inicio sin internet), cargamos lo que haya en ObjectBox
       if (state.products.isEmpty) {
         final local = await objectBox.getCachedProducts();
-        state = state.copyWith(products: local, isLoading: false);
-      } else {
-        state = state.copyWith(isLoading: false);
+        if (local.isNotEmpty) {
+          state = state.copyWith(products: local);
+        }
       }
     }
   }
 }
 
-// Provider Expuesto
 final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>(
   (ref) {
     final repository = ref.watch(productsRepositoryProvider);
@@ -126,7 +134,6 @@ final productsProvider = StateNotifierProvider<ProductsNotifier, ProductsState>(
   },
 );
 
-// Este provider ahora simplemente observa la lista que maneja el notifier
 final filteredProductsProvider = Provider((ref) {
   return ref.watch(productsProvider).products;
 });
