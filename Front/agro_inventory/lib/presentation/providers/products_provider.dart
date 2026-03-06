@@ -44,14 +44,15 @@ class ProductsState {
     bool? isLastPage,
     String? searchQuery,
     bool? hasError,
-  }) => ProductsState(
-    products: products ?? this.products,
-    offset: offset ?? this.offset,
-    isLoading: isLoading ?? this.isLoading,
-    isLastPage: isLastPage ?? this.isLastPage,
-    searchQuery: searchQuery ?? this.searchQuery,
-    hasError: hasError ?? this.hasError,
-  );
+  }) =>
+      ProductsState(
+        products: products ?? this.products,
+        offset: offset ?? this.offset,
+        isLoading: isLoading ?? this.isLoading,
+        isLastPage: isLastPage ?? this.isLastPage,
+        searchQuery: searchQuery ?? this.searchQuery,
+        hasError: hasError ?? this.hasError,
+      );
 }
 
 class ProductsNotifier extends StateNotifier<ProductsState> {
@@ -59,7 +60,7 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
   final ObjectBoxDatasource objectBox;
 
   ProductsNotifier({required this.repository, required this.objectBox})
-    : super(ProductsState()) {
+      : super(ProductsState()) {
     loadNextPage();
   }
 
@@ -88,8 +89,9 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
 
   Future<void> loadNextPage() async {
     // Si ya está cargando, es la última página o hay búsqueda activa, no hace nada
-    if (state.isLoading || state.isLastPage || state.searchQuery.isNotEmpty)
+    if (state.isLoading || state.isLastPage || state.searchQuery.isNotEmpty) {
       return;
+    }
 
     state = state.copyWith(isLoading: true, hasError: false);
 
@@ -112,15 +114,15 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         offset: state.offset + 30,
       );
     } catch (e) {
-      // Manejo de error avanzado
-      state = state.copyWith(isLoading: false, hasError: true);
+      final localData = await objectBox.getCachedProducts();
 
-      // Si la lista está vacía (primer inicio sin internet), cargamos lo que haya en ObjectBox
-      if (state.products.isEmpty) {
-        final local = await objectBox.getCachedProducts();
-        if (local.isNotEmpty) {
-          state = state.copyWith(products: local);
-        }
+      if (state.products.isEmpty && localData.isEmpty) {
+        state = state.copyWith(isLoading: false, hasError: true);
+      } else {
+        state = state.copyWith(
+            isLoading: false,
+            products: state.products.isEmpty ? localData : state.products,
+            hasError: false);
       }
     }
   }

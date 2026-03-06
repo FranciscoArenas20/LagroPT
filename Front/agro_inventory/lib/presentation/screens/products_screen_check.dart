@@ -70,28 +70,19 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
       body: Column(
         children: [
           // BANNER DE ERROR / REINTENTO
-          if (productsState.hasError)
+          if (productsState.hasError && filteredProducts.isEmpty)
             Container(
               width: double.infinity,
               color: Colors.orange.shade100,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Column(
                 children: [
-                  const Expanded(
-                    child: Text(
-                      'Sin conexión. Mostrando datos locales.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
+                  const Text('No se pudo sincronizar con el servidor.'),
                   TextButton.icon(
                     onPressed: () =>
                         ref.read(productsProvider.notifier).retry(),
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text('REINTENTAR'),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('REINTENTAR CONEXIÓN'),
                   ),
                 ],
               ),
@@ -102,15 +93,15 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
             child: (productsState.isLoading && filteredProducts.isEmpty)
                 ? const Center(child: CircularProgressIndicator())
                 : filteredProducts.isEmpty
-                ? const Center(child: Text('No se encontraron productos'))
-                : ListView.builder(
-                    controller: scrollController,
-                    itemCount: filteredProducts.length,
-                    itemBuilder: (context, index) {
-                      final product = filteredProducts[index];
-                      return ProductCard(product: product);
-                    },
-                  ),
+                    ? const Center(child: Text('No se encontraron productos'))
+                    : ListView.builder(
+                        controller: scrollController,
+                        itemCount: filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = filteredProducts[index];
+                          return ProductCard(product: product);
+                        },
+                      ),
           ),
 
           // INDICADOR DE CARGA AL FINAL (SCROLL INFINITO)

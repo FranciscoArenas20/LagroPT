@@ -38,7 +38,11 @@ class ObjectBoxDatasource {
     final box = store.box<Product>();
 
     final q = box
-        .query(Product_.name.contains(query, caseSensitive: false))
+        .query(
+          Product_.name
+              .contains(query, caseSensitive: false)
+              .or(Product_.category.contains(query, caseSensitive: false)),
+        )
         .build();
 
     final results = q.find();
