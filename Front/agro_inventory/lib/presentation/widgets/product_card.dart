@@ -18,12 +18,8 @@ class ProductCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Imagen optimizada con caché
             _ProductImage(product: product),
-
             const SizedBox(width: 12),
-
-            // Información textual del producto
             _ProductDetails(product: product),
           ],
         ),
@@ -31,8 +27,6 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
-
-// --- Sub-widgets para mayor limpieza ---
 
 class _ProductImage extends StatelessWidget {
   const _ProductImage({required this.product});
@@ -75,8 +69,6 @@ class _ProductDetails extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-
-          // Etiqueta de categoría
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
@@ -92,9 +84,7 @@ class _ProductDetails extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             '\$${product.price.toStringAsFixed(2)}',
             style: const TextStyle(

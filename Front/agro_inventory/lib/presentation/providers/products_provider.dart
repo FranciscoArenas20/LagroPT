@@ -19,14 +19,14 @@ final productsRepositoryProvider = Provider((ref) {
   return ProductsRepositoryImpl(datasource);
 });
 
-// Estado del Provider Mejorado
+// Estado del Provider
 class ProductsState {
   final List<Product> products;
   final int offset;
   final bool isLoading;
   final bool isLastPage;
   final String searchQuery;
-  final bool hasError; // <--- Nueva propiedad para el botón de reload
+  final bool hasError;
 
   ProductsState({
     this.products = const [],
@@ -64,7 +64,6 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
     loadNextPage();
   }
 
-  // Función para resetear el error y reintentar
   Future<void> retry() async {
     state = state.copyWith(hasError: false, isLoading: true);
     await loadNextPage();
@@ -88,10 +87,8 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
   }
 
   Future<void> loadNextPage() async {
-    // Si ya está cargando, es la última página o hay búsqueda activa, no hace nada
-    if (state.isLoading || state.isLastPage || state.searchQuery.isNotEmpty) {
+    if (state.isLoading || state.isLastPage || state.searchQuery.isNotEmpty)
       return;
-    }
 
     state = state.copyWith(isLoading: true, hasError: false);
 
@@ -112,6 +109,7 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         isLoading: false,
         products: [...state.products, ...newProducts],
         offset: state.offset + 30,
+        hasError: false,
       );
     } catch (e) {
       final localData = await objectBox.getCachedProducts();
@@ -120,9 +118,10 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
         state = state.copyWith(isLoading: false, hasError: true);
       } else {
         state = state.copyWith(
-            isLoading: false,
-            products: state.products.isEmpty ? localData : state.products,
-            hasError: false);
+          isLoading: false,
+          products: state.products.isEmpty ? localData : state.products,
+          hasError: false,
+        );
       }
     }
   }

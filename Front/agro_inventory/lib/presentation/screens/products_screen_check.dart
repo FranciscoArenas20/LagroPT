@@ -32,7 +32,6 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Estado general y la lista ya filtrada
     final productsState = ref.watch(productsProvider);
     final filteredProducts = ref.watch(filteredProductsProvider);
 
@@ -43,15 +42,11 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 10.0,
-            ),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
             child: TextField(
-              onChanged: (value) {
-                // LLAMADA ACTIVA AL BUSCADOR
-                ref.read(productsProvider.notifier).searchProducts(value);
-              },
+              onChanged: (value) =>
+                  ref.read(productsProvider.notifier).searchProducts(value),
               decoration: InputDecoration(
                 hintText: 'Buscar productos...',
                 prefixIcon: const Icon(Icons.search, color: Colors.green),
@@ -69,7 +64,7 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
       ),
       body: Column(
         children: [
-          // BANNER DE ERROR / REINTENTO
+          // BANNER DE ERROR INTELIGENTE
           if (productsState.hasError && filteredProducts.isEmpty)
             Container(
               width: double.infinity,
@@ -77,7 +72,9 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Column(
                 children: [
-                  const Text('No se pudo sincronizar con el servidor.'),
+                  const Text('No se pudo sincronizar con el servidor.',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Revisa tu conexión para descargar nuevos datos.'),
                   TextButton.icon(
                     onPressed: () =>
                         ref.read(productsProvider.notifier).retry(),
@@ -88,23 +85,24 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
               ),
             ),
 
-          // LISTADO DE PRODUCTOS
+          // LISTADO
           Expanded(
             child: (productsState.isLoading && filteredProducts.isEmpty)
                 ? const Center(child: CircularProgressIndicator())
                 : filteredProducts.isEmpty
-                    ? const Center(child: Text('No se encontraron productos'))
+                    ? const Center(
+                        child:
+                            Text('No hay datos disponibles en este momento.'))
                     : ListView.builder(
                         controller: scrollController,
                         itemCount: filteredProducts.length,
                         itemBuilder: (context, index) {
-                          final product = filteredProducts[index];
-                          return ProductCard(product: product);
+                          return ProductCard(product: filteredProducts[index]);
                         },
                       ),
           ),
 
-          // INDICADOR DE CARGA AL FINAL (SCROLL INFINITO)
+          // INDICADOR DE CARGA AL FINAL
           if (productsState.isLoading && filteredProducts.isNotEmpty)
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 10),

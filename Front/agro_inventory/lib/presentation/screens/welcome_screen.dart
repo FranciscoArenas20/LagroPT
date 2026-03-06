@@ -14,14 +14,12 @@ class WelcomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Icono representativo (puedes cambiarlo luego por tu logo)
               const Icon(
                 Icons.inventory_2_outlined,
                 size: 100,
                 color: Colors.green,
               ),
               const SizedBox(height: 30),
-
               const Text(
                 'InventAgro Pro',
                 style: TextStyle(
@@ -31,17 +29,13 @@ class WelcomeScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-
               const Text(
                 'Bienvenido! Esta aplicación fue desarrollada como prueba técnica de alto rendimiento para Lagro. '
                 'Es una herramienta optimizada para la gestión de inventarios masivos con tiempos de respuesta críticos.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
               ),
-
               const SizedBox(height: 40),
-
-              // Lista de Features (Valor Agregado)
               const _FeatureItem(
                 icon: Icons.flash_on,
                 text: 'Búsqueda indexada en +50,000 registros (ObjectBox)',
@@ -54,10 +48,7 @@ class WelcomeScreen extends StatelessWidget {
                 icon: Icons.touch_app,
                 text: 'Scroll infinito con consumo mínimo de RAM',
               ),
-
               const SizedBox(height: 50),
-
-              // Botón de Acción
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -70,7 +61,6 @@ class WelcomeScreen extends StatelessWidget {
                     elevation: 5,
                   ),
                   onPressed: () {
-                    // Navegación hacia la pantalla de productos
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
