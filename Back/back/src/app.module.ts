@@ -9,7 +9,7 @@ import { Category } from './products/entities/category.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Hace que las variables estén disponibles en toda la app
+      isGlobal: true, 
     }),
     
     TypeOrmModule.forRoot({

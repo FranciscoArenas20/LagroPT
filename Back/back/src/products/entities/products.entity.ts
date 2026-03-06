@@ -19,6 +19,6 @@ export class Product {
   @Column()
   description: string;
 
-  @ManyToOne(() => Category, { eager: true }) // eager: true trae la categoría automáticamente
+  @ManyToOne(() => Category, { eager: true }) 
   category: Category;
 }
