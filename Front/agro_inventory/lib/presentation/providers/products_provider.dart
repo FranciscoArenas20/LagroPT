@@ -62,14 +62,13 @@ class ProductsNotifier extends StateNotifier<ProductsState> {
 
   // Busca en los registros de ObjectBox
   void searchProducts(String query) async {
+    state = state.copyWith(searchQuery: query);
+
     if (query.isEmpty) {
-      state = state.copyWith(searchQuery: '', offset: 0, isLastPage: false);
-      final initialProducts = await objectBox.getCachedProducts();
-      state = state.copyWith(products: initialProducts);
+      final cache = await objectBox.getCachedProducts();
+      state = state.copyWith(products: cache, isLoading: false);
       return;
     }
-
-    state = state.copyWith(searchQuery: query, isLoading: true);
 
     // consulta en ObjectBox
     final results = await objectBox.searchProducts(query);
