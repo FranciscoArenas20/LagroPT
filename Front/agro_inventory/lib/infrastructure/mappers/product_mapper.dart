@@ -6,6 +6,9 @@ class ProductMapper {
     name: json['name'] ?? 'Sin nombre',
     description: json['description'] ?? '',
     price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
-    categoryName: json['category']?['name'] ?? 'General',
+    category: (json['category'] is Map)
+        ? (json['category']['name'] ?? 'General')
+        : 'General',
+    image: json['image'] ?? 'https://via.placeholder.com/150',
   );
 }

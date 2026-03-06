@@ -84,7 +84,7 @@ class _ProductDetails extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              product.categoryName,
+              product.category,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.green.shade900,

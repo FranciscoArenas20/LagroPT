@@ -72,7 +72,7 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
                   ),
                 ),
                 title: Text(product.name),
-                subtitle: Text(product.categoryName),
+                subtitle: Text(product.category),
                 trailing: Text(
                   '\$${product.price.toStringAsFixed(2)}',
                   style: const TextStyle(

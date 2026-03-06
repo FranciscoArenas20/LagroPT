@@ -1,15 +1,25 @@
+import 'package:objectbox/objectbox.dart';
+
+@Entity()
 class Product {
-  final String id;
-  final String name;
-  final String description;
-  final double price;
-  final String categoryName;
+  @Id()
+  int obId;
+
+  @Unique()
+  String id;
+  String name;
+  String description;
+  double price;
+  String category;
+  String image;
 
   Product({
+    this.obId = 0,
     required this.id,
     required this.name,
     required this.description,
     required this.price,
-    required this.categoryName,
+    required this.category,
+    required this.image,
   });
 }

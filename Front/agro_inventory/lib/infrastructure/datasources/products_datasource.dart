@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import '../mappers/product_mapper.dart';
-import '../../domain/entities/products.dart';
+import '../../../../domain/entities/products.dart';
 
 class ProductsDatasource {
   final Dio dio;

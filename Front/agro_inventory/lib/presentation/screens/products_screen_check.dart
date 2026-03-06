@@ -16,11 +16,9 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
   @override
   void initState() {
     super.initState();
-    // Escuchar scroll para la paginación infinita
     scrollController.addListener(() {
       if ((scrollController.position.pixels + 400) >=
           scrollController.position.maxScrollExtent) {
-        // Llamar al notifier para cargar la siguiente página
         ref.read(productsProvider.notifier).loadNextPage();
       }
     });
@@ -28,67 +26,59 @@ class ProductsScreenState extends ConsumerState<ProductsScreen> {
 
   @override
   void dispose() {
-    scrollController.dispose(); // Limpieza para evitar fugas de memoria
+    scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Estado completo del listado
+    // Estado general y la lista ya filtrada
     final productsState = ref.watch(productsProvider);
+    final filteredProducts = ref.watch(filteredProductsProvider);
 
     return Scaffold(
-      body: CustomScrollView(
-        controller: scrollController,
-        slivers: [
-          // AppBar que flota y reacciona al scroll
-          const SliverAppBar(
-            title: Text('🚜 Inventario Agro'),
-            floating: true,
-            snap: true,
-          ),
-
-          // La lista de productos optimizada con Slivers
-          SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final product = productsState.products[index];
-
-                return ProductCard(product: product);
+      appBar: AppBar(
+        title: const Text('InventAgro'),
+        centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(70),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 10.0,
+            ),
+            child: TextField(
+              onChanged: (value) {
+                // LLAMADA ACTIVA AL BUSCADOR
+                ref.read(productsProvider.notifier).searchProducts(value);
               },
-              childCount: productsState
-                  .products
-                  .length, // Número total de productos en memoria
-            ),
-          ),
-
-          // Spinner de carga al final de la lista si está cargando más
-          if (productsState.isLoading)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            ),
-
-          // Mensaje final
-          if (productsState.isLastPage)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.all(30),
-                child: Center(
-                  child: Text(
-                    'Has llegado al final del inventario agrícola',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
+              decoration: InputDecoration(
+                hintText: 'Buscar productos...',
+                prefixIcon: const Icon(Icons.search, color: Colors.green),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),
-        ],
+          ),
+        ),
       ),
+      body: (productsState.isLoading && filteredProducts.isEmpty)
+          ? const Center(child: CircularProgressIndicator())
+          : filteredProducts.isEmpty
+          ? const Center(child: Text('No se encontraron productos'))
+          : ListView.builder(
+              controller: scrollController,
+              itemCount: filteredProducts.length,
+              itemBuilder: (context, index) {
+                final product = filteredProducts[index];
+                return ProductCard(product: product);
+              },
+            ),
     );
   }
 }
